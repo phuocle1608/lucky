@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CHỨC MỪNG NĂM MỚI 2024</title>
+    <style>
+        body {
+            text-align: center;
+            font-family: Arial, sans-serif;
+            background-color: #000;
+            color: #fff;
+        }
+
+        h1 {
+            color: #009688;
+        }
+
+        p {
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+
+        .controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 10px;
+        }
+
+        .stock-container {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+            min-height: 5.3em;
+        }
+
+        .stock-column {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            /* Căn giữa cột */
+        }
+
+        .stock-item {
+            font-size: 1.5em;
+            margin: 5px 0;
+            color: #009688;
+        }
+
+
+        #total {
+            font-size: 1.5em;
+            color: #009688;
+            margin-top: 20px;
+            min-height: 1.2em;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 1em;
+            cursor: pointer;
+            background-color: #009688;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            /* margin-top: 10px; */
+        }
+
+        input {
+            padding: 8px;
+            font-size: 1em;
+        }
+
+        table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+        }
+
+        table,
+        th,
+        td {
+            border: 1px solid #009688;
+        }
+
+        th,
+        td {
+            padding: 10px;
+            text-align: left;
+        }
+
+        #recipientName {
+            margin-right: 60px;
+            /* Khoảng cách giữa recipientName và controls-num */
+        }
+
+        #btn-nhanlixi {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>CHÚC MỪNG NĂM MỚI 2024</h1>
+    <p>Nhận mã chứng khoán may mắn dành cho bạn</p>
+
+    <div class="controls">
+        <input type="text" id="recipientName" placeholder="Nhập tên của bạn">
+        <div class="controls-num">
+            <button onclick="decreaseColumns()">▼</button>
+            <span id="numColumns">3</span>
+            <button onclick="increaseColumns()">▲</button>
+        </div>
+    </div>
+    <button id="btn-nhanlixi" onclick="startLottery()">Nhận Lì Xì</button>
+    <div id="stock-container" class="stock-container"></div>
+    <div id="total"></div>
+    <table id="resultTable">
+        <thead>
+            <tr>
+                <th>STT</th>
+                <th>Tên</th>
+                <th>Nên đầu tư</th>
+                <th>Tổng số tiền</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Các dòng kết quả sẽ được thêm vào đây -->
+        </tbody>
+    </table>
+
+    <script>
+        var stockCodes = ['AAA', 'AAM', 'AAT', 'ABR', 'ABS', 'ABT', 'ACB', 'ACC', 'ACG', 'ACL', 'ADP', 'ADS', 'AGG', 'AGR', 'ANV', 'APC', 'APG', 'APH', 'ASG', 'ASM', 'AST', 'BAF', 'BBC', 'BCE', 'BCG', 'BCM', 'BFC', 'BHN', 'BIC', 'BID', 'BMC', 'BMI', 'BMP', 'BRC', 'BSI', 'BTP', 'BVH', 'BWE', 'C32', 'C47', 'CAV', 'CCL', 'CDC', 'CHP', 'CIG', 'CII', 'CKG', 'CLC', 'CLL', 'CMG', 'CMX', 'CNG', 'CRC', 'CRE', 'CSM', 'CSV', 'CTD', 'CTF', 'CTG', 'CTI', 'CTR', 'CTS', 'CVT', 'D2D', 'DBC', 'DBD', 'DBT', 'DC4', 'DCL', 'DCM', 'DGC', 'DGW', 'DHA', 'DHC', 'DHG', 'DHM', 'DIG', 'DMC', 'DPG', 'DPM', 'DPR', 'DQC', 'DRC', 'DSN', 'DTA', 'DTL', 'DVP', 'DXG', 'DXS', 'EIB', 'ELC', 'EVE', 'EVF', 'EVG', 'FCN', 'FIR', 'FMC', 'FPT', 'FRT', 'FTS', 'GAS', 'GDT', 'GEG', 'GEX', 'GIL', 'GMC', 'GMD', 'GMH', 'GSP', 'GTA', 'GVR', 'HAG', 'HAH', 'HAX', 'HBC', 'HCD', 'HCM', 'HDB', 'HDC', 'HDG', 'HHP', 'HHS', 'HHV', 'HII', 'HMC', 'HNA', 'HPG', 'HRC', 'HSG', 'HSL', 'HT1', 'HTG', 'HTI', 'HTL', 'HTN', 'HTV', 'HUB', 'HVH', 'HVN', 'ICT', 'IDI', 'IJC', 'ILB', 'IMP', 'ITA', 'ITC', 'ITD', 'KBC', 'KDC', 'KDH', 'KHG', 'KHP', 'KOS', 'KSB', 'L10', 'LAF', 'LBM', 'LCG', 'LEC', 'LGC', 'LHG', 'LIX', 'LPB', 'LSS', 'MBB', 'MDG', 'MHC', 'MIG', 'MSB', 'MSH', 'MSN', 'MWG', 'NAF', 'NAV', 'NBB', 'NCT', 'NHA', 'NHH', 'NKG', 'NLG', 'NNC', 'NO1', 'NSC', 'NT2', 'NTL', 'NVL', 'OCB', 'OGC', 'OPC', 'ORS', 'PAC', 'PAN', 'PC1', 'PDN', 'PDR', 'PET', 'PGC', 'PGD', 'PGV', 'PHC', 'PHR', 'PIT', 'PLX', 'PMG', 'PNC', 'PNJ', 'POW', 'PPC', 'PSH', 'PTB', 'PTC', 'PVD', 'PVP', 'PVT', 'QCG', 'QNP', 'RAL', 'RDP', 'REE', 'SAB', 'SAM', 'SAV', 'SBA', 'SBG', 'SBT', 'SBV', 'SCD', 'SCR', 'SCS', 'SFC', 'SFG', 'SFI', 'SGN', 'SGR', 'SGT', 'SHB', 'SHI', 'SHP', 'SIP', 'SJD', 'SJS', 'SKG', 'SMB', 'SMC', 'SPM', 'SRF', 'SSB', 'SSC', 'SSI', 'ST8', 'STB', 'STG', 'STK', 'SVC', 'SVI', 'SVT', 'SZC', 'SZL', 'TBC', 'TCB', 'TCD', 'TCH', 'TCI', 'TCL', 'TCM', 'TCO', 'TCT', 'TDC', 'TDM', 'TDP', 'TDW', 'TEG', 'THG', 'TIP', 'TLD', 'TLG', 'TLH', 'TMP', 'TMS', 'TMT', 'TN1', 'TNA', 'TNH', 'TPB', 'TRA', 'TRC', 'TTA', 'TV2', 'TVB', 'TVS', 'TVT', 'TYA', 'UIC', 'VAF', 'VCA', 'VCB', 'VCG', 'VCI', 'VDP', 'VDS', 'VFG', 'VGC', 'VHC', 'VHM', 'VIB', 'VIC', 'VID', 'VIP', 'VIX', 'VJC', 'VMD', 'VND', 'VNE', 'VNG', 'VNL', 'VNM', 'VNS', 'VOS', 'VPB', 'VPD', 'VPG', 'VPH', 'VPI', 'VPS', 'VRC', 'VRE', 'VSC', 'VSH', 'VSI', 'VTB', 'VTO', 'YBM', 'YEG',];
+        var stockValues = { 'AAA': 10.7, 'AAM': 9, 'AAT': 5.29, 'ABR': 13, 'ABS': 5.83, 'ABT': 35, 'ACB': 28, 'ACC': 11.95, 'ACG': 37.5, 'ACL': 12, 'ADP': 22.2, 'ADS': 13, 'AGG': 23.95, 'AGR': 17.35, 'ANV': 30.6, 'APC': 7.73, 'APG': 14.3, 'APH': 8.4, 'ASG': 21.05, 'ASM': 10.25, 'AST': 57, 'BAF': 25.7, 'BBC': 51, 'BCE': 5.75, 'BCG': 8.17, 'BCM': 64, 'BFC': 25.7, 'BHN': 38.4, 'BIC': 29.2, 'BID': 48.95, 'BMC': 19.75, 'BMI': 22.2, 'BMP': 106, 'BRC': 13.35, 'BSI': 52.4, 'BTP': 16.85, 'BVH': 41.2, 'BWE': 42.75, 'C32': 17.35, 'C47': 6.94, 'CAV': 70.6, 'CCL': 7.53, 'CDC': 20.2, 'CHP': 26.4, 'CIG': 6.09, 'CII': 18.4, 'CKG': 20.8, 'CLC': 39.1, 'CLL': 39.2, 'CMG': 40.75, 'CMX': 8.46, 'CNG': 29.2, 'CRC': 6.74, 'CRE': 8.3, 'CSM': 12.85, 'CSV': 55.1, 'CTD': 66.2, 'CTF': 30.95, 'CTG': 35.5, 'CTI': 16.5, 'CTR': 96.5, 'CTS': 31.25, 'CVT': 33, 'D2D': 35, 'DBC': 28.55, 'DBD': 54.2, 'DBT': 12.25, 'DC4': 11.1, 'DCL': 24.65, 'DCM': 34, 'DGC': 96.2, 'DGW': 55.6, 'DHA': 52.3, 'DHC': 42.1, 'DHG': 107.3, 'DHM': 7.77, 'DIG': 27.3, 'DMC': 56.5, 'DPG': 41.7, 'DPM': 33.9, 'DPR': 34.35, 'DQC': 15.7, 'DRC': 31.5, 'DSN': 54.9, 'DTA': 5.16, 'DTL': 14, 'DVP': 68.3, 'DXG': 18.4, 'DXS': 7.02, 'EIB': 18.7, 'ELC': 21.85, 'EVE': 14.15, 'EVF': 15.9, 'EVG': 5.1, 'FCN': 14.1, 'FIR': 9.09, 'FMC': 45.8, 'FPT': 104.9, 'FRT': 125, 'FTS': 48.65, 'GAS': 75.7, 'GDT': 24.3, 'GEG': 13.2, 'GEX': 21.5, 'GIL': 28.8, 'GMC': 8.99, 'GMD': 69.5, 'GMH': 9.8, 'GSP': 12.1, 'GTA': 14.95, 'GVR': 25.35, 'HAG': 13.15, 'HAH': 40.75, 'HAX': 14.4, 'HBC': 8.39, 'HCD': 9.99, 'HCM': 27.3, 'HDB': 23.55, 'HDC': 30.7, 'HDG': 26.8, 'HHP': 10.4, 'HHS': 8.57, 'HHV': 15.55, 'HII': 6.04, 'HMC': 12.1, 'HNA': 21.6, 'HPG': 28.15, 'HRC': 47.1, 'HSG': 23.25, 'HSL': 6.05, 'HT1': 13.15, 'HTG': 32.2, 'HTI': 16.5, 'HTL': 18.15, 'HTN': 14.9, 'HTV': 9.7, 'HUB': 16.9, 'HVH': 5.03, 'HVN': 12.5, 'ICT': 11.55, 'IDI': 11.3, 'IJC': 15.4, 'ILB': 29.7, 'IMP': 63, 'ITA': 6.31, 'ITC': 11.25, 'ITD': 9.75, 'KBC': 31.2, 'KDC': 62, 'KDH': 31.2, 'KHG': 6.04, 'KHP': 9.54, 'KOS': 39.6, 'KSB': 29.15, 'L10': 20.2, 'LAF': 13.6, 'LBM': 43.8, 'LCG': 13.25, 'LEC': 6.3, 'LGC': 60, 'LHG': 34.85, 'LIX': 61.4, 'LPB': 18.15, 'LSS': 11.65, 'MBB': 23.5, 'MDG': 13.8, 'MHC': 7.9, 'MIG': 18.1, 'MSB': 14.1, 'MSH': 39.55, 'MSN': 64.9, 'MWG': 46.6, 'NAF': 15.4, 'NAV': 15.6, 'NBB': 20.5, 'NCT': 89.9, 'NHA': 16.85, 'NHH': 18.6, 'NKG': 24.35, 'NLG': 39.8, 'NNC': 17.9, 'NO1': 11.25, 'NSC': 72.9, 'NT2': 25.45, 'NTL': 31.2, 'NVL': 17.3, 'OCB': 15.1, 'OGC': 7.34, 'OPC': 23.05, 'ORS': 16.4, 'PAC': 31.75, 'PAN': 22.85, 'PC1': 29.95, 'PDN': 101.7, 'PDR': 30.05, 'PET': 24.95, 'PGC': 14.45, 'PGD': 36.8, 'PGV': 22.55, 'PHC': 6.94, 'PHR': 53.6, 'PIT': 5.85, 'PLX': 34.75, 'PMG': 9, 'PNC': 9.2, 'PNJ': 91.2, 'POW': 11.35, 'PPC': 13.7, 'PSH': 7.33, 'PTB': 55.4, 'PTC': 5.76, 'PVD': 28.75, 'PVP': 13.9, 'PVT': 26.75, 'QCG': 8.4, 'QNP': 37.95, 'RAL': 118.7, 'RDP': 8.25, 'REE': 56.5, 'SAB': 57.8, 'SAM': 6.6, 'SAV': 15.4, 'SBA': 29.5, 'SBG': 16, 'SBT': 13.3, 'SBV': 10.9, 'SCD': 13.75, 'SCR': 7.08, 'SCS': 72.1, 'SFC': 21, 'SFG': 9.65, 'SFI': 32, 'SGN': 69.6, 'SGR': 20.5, 'SGT': 12.3, 'SHB': 11.65, 'SHI': 13.6, 'SHP': 32.5, 'SIP': 80, 'SJD': 14.9, 'SJS': 68.8, 'SKG': 14.3, 'SMB': 36.8, 'SMC': 10.25, 'SPM': 12.1, 'SRF': 8.5, 'SSB': 23.2, 'SSC': 33, 'SSI': 35.1, 'ST8': 11.9, 'STB': 31.1, 'STG': 44.85, 'STK': 27.7, 'SVC': 28.9, 'SVI': 65.8, 'SVT': 11.8, 'SZC': 42.35, 'SZL': 40.7, 'TBC': 38, 'TCB': 37.3, 'TCD': 7.51, 'TCH': 13.4, 'TCI': 13, 'TCL': 38.3, 'TCM': 42, 'TCO': 9.17, 'TCT': 22.3, 'TDC': 8.95, 'TDM': 41.5, 'TDP': 28, 'TDW': 43.75, 'TEG': 9.47, 'THG': 39.85, 'TIP': 25, 'TLD': 5.36, 'TLG': 47, 'TLH': 8.01, 'TMP': 72, 'TMS': 47, 'TMT': 15.1, 'TN1': 14.05, 'TNA': 5.5, 'TNH': 19.25, 'TPB': 18.5, 'TRA': 80, 'TRC': 33.2, 'TTA': 8.35, 'TV2': 42.3, 'TVB': 7.28, 'TVS': 21.2, 'TVT': 16.4, 'TYA': 10, 'UIC': 37.9, 'VAF': 13.5, 'VCA': 9.2, 'VCB': 90, 'VCG': 25.35, 'VCI': 45.1, 'VDP': 39, 'VDS': 18.4, 'VFG': 54.5, 'VGC': 52.7, 'VHC': 65.8, 'VHM': 41.8, 'VIB': 21.7, 'VIC': 42.4, 'VID': 5.5, 'VIP': 11.25, 'VIX': 18.1, 'VJC': 105.3, 'VMD': 17.45, 'VND': 23, 'VNE': 6.26, 'VNG': 8.91, 'VNL': 14.4, 'VNM': 67.6, 'VNS': 13, 'VOS': 12.3, 'VPB': 19.6, 'VPD': 24.5, 'VPG': 17.65, 'VPH': 7.69, 'VPI': 56.9, 'VPS': 9.79, 'VRC': 7.95, 'VRE': 21.9, 'VSC': 22.25, 'VSH': 47.5, 'VSI': 18.1, 'VTB': 10.3, 'VTO': 10.5, 'YBM': 9, 'YEG': 10.4, };
+        var totalValue = 0; // Biến để lưu tổng giá của các cổ phiếu
+        var numColumns = 3; // Số lượng cột mặc định
+        var resultCounter = 0; // Đếm kết quả
+
+        function startLottery() {
+            clearResults(); // Xóa kết quả cũ khi nhấn nút "Nhận Lì Xì"
+
+            // Tạo cột cho mỗi lần nhấn nút
+            for (var i = 1; i <= numColumns; i++) {
+                createStockColumn('stock' + i);
+            }
+
+            var intervalTime = 50; // 0.05 giây
+            var currentTime = 0;
+
+            var interval = setInterval(function () {
+                currentTime += intervalTime;
+
+                if (currentTime <= 2000) {
+                    for (var i = 1; i <= numColumns; i++) {
+                        generateAndDisplayResults('stock' + i);
+                    }
+                } else {
+                    clearInterval(interval); // Dừng interval sau 5 giây
+                    displayTotal();
+                    saveResult();
+                }
+            }, intervalTime);
+        }
+
+        function generateAndDisplayResults(stockId) {
+            var stockCode = generateRandomStockCode();
+            var stockValue = stockValues[stockCode];
+
+            var stockColumn = document.getElementById(stockId);
+
+            var stockCodeElement = stockColumn.querySelector('.stock-item-code');
+            var stockPrice = stockColumn.querySelector('.stock-item-price');
+
+
+            stockCodeElement.innerHTML = stockCode;
+            stockPrice.innerHTML = stockValue.toFixed(2);
+        }
+
+        function generateRandomStockCode() {
+            var randomIndex = Math.floor(Math.random() * stockCodes.length);
+            return stockCodes[randomIndex];
+        }
+
+        function displayTotal() {
+            totalValue = 0; // Đặt lại tổng giá về 0 trước khi cộng dồn
+
+            var priceElements = document.querySelectorAll('.stock-item.stock-item-price');
+            priceElements.forEach(function (priceElement) {
+                var stockPrice = parseFloat(priceElement.innerText);
+                totalValue += stockPrice;
+            });
+
+            document.getElementById('total').innerHTML = 'Lì xì của bạn: ' + totalValue.toFixed(2) + 'k VND';
+        }
+
+        function clearResults() {
+            // Xóa nội dung các ô hiển thị kết quả
+            var stockContainer = document.getElementById('stock-container');
+            stockContainer.innerHTML = '';
+
+            document.getElementById('total').innerHTML = ''; // Xóa tổng giá
+        }
+
+        function createStockColumn(stockId) {
+            var stockContainer = document.getElementById('stock-container');
+
+            var stockColumn = document.createElement('div');
+            stockColumn.className = 'stock-column';
+            stockColumn.id = stockId;
+
+
+
+            var stockCode = document.createElement('div');
+            stockCode.className = 'stock-item stock-item-code';
+
+            var stockPrice = document.createElement('div');
+            stockPrice.className = 'stock-item stock-item-price';
+
+
+            stockColumn.appendChild(stockCode);
+            stockColumn.appendChild(stockPrice);
+
+            stockContainer.appendChild(stockColumn);
+        }
+
+        function increaseColumns() {
+            numColumns++;
+            document.getElementById('numColumns').innerText = numColumns;
+        }
+
+        function decreaseColumns() {
+            if (numColumns > 1) {
+                numColumns--;
+                document.getElementById('numColumns').innerText = numColumns;
+            }
+        }
+
+        function saveResult() {
+            // Lấy tên người nhận lì xì
+            var recipientName = document.getElementById('recipientName').value;
+
+            // Lấy thông tin mã cổ phiếu và tổng giá
+            var stockCodesString = '';
+            for (var i = 1; i <= numColumns; i++) {
+                var stockId = 'stock' + i;
+                var stockCode = document.getElementById(stockId).querySelector('.stock-item-code').innerHTML;
+
+                // Nối mã cổ phiếu vào chuỗi, ngăn cách bằng dấu phẩy
+                stockCodesString += stockCode + ', ';
+            }
+
+            // Loại bỏ dấu phẩy cuối cùng nếu có
+            stockCodesString = stockCodesString.replace(/,\s*$/, '');
+
+            // Tính tổng số tiền
+            var totalAmount = totalValue.toFixed(2);
+
+            // Thêm dòng mới vào bảng kết quả
+            var resultTableBody = document.querySelector('#resultTable tbody');
+            var newRow = resultTableBody.insertRow(0);
+            var cellIndex = newRow.insertCell(0);
+            var cellName = newRow.insertCell(1);
+            var cellStockCodes = newRow.insertCell(2);
+            var cellTotalAmount = newRow.insertCell(3);
+
+            cellIndex.innerHTML = ++resultCounter;
+            cellName.innerHTML = recipientName;
+            cellStockCodes.innerHTML = stockCodesString;
+            cellTotalAmount.innerHTML = totalAmount;
+        }
+    </script>
+</body>
+
+</html>
